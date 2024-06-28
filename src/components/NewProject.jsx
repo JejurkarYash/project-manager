@@ -1,8 +1,12 @@
 import React from "react";
 import { useState, useRef, forwardRef } from "react";
 import Inputs from "./Inputs";
+import ErrorModel from "./ErrorModel.jsx";
 
 const NewProject = ({ onCancel, onSave }) => {
+  const [showError, setShowError] = useState({
+    flag: false,
+  });
   let title = useRef();
   let discription = useRef();
   let dueDate = useRef();
@@ -13,7 +17,24 @@ const NewProject = ({ onCancel, onSave }) => {
     let Discription = discription.current.value.trim();
     let DueDate = dueDate.current.value;
 
-    if (Title !== "" && Discription !== " " && DueDate !== "") {
+    let message;
+
+    if (Title === "") {
+      setShowError({
+        flag: true,
+        message: "Plese Enter The Title !",
+      });
+    } else if (Discription === "") {
+      setShowError({
+        flag: true,
+        message: "Plese Enter The Discription !",
+      });
+    } else if (DueDate === "") {
+      setShowError({
+        flag: true,
+        message: "Plese Enter The DueDate !",
+      });
+    } else {
       onSave({
         Title,
         Discription,
@@ -21,13 +42,27 @@ const NewProject = ({ onCancel, onSave }) => {
         Id: Math.floor(Math.random() * 10000),
         tasks: [],
       });
-    } else {
-      console.log("Validation Error");
+
+      // it will reset the value of input feild
+      title.current.value = "";
+      discription.current.value = " ";
+      dueDate.current.value = " yyyy-MM-dd";
     }
 
-    title.current.value = "";
-    discription.current.value = " ";
-    dueDate.current.value = " yyyy-MM-dd";
+    // if (Title !== "" && Discription !== " " && DueDate !== "") {
+    // } else {
+    //   setShowError(true);
+    //   console.log("Validation Error");
+    // }
+  }
+
+  // function for displaying the error modal
+
+  // function for handling the onCLose
+  function handleCloseError() {
+    setShowError({
+      flag: false,
+    });
   }
 
   return (
@@ -55,6 +90,13 @@ const NewProject = ({ onCancel, onSave }) => {
         <Inputs label="Discription" ref={discription} textarea />
         <Inputs label="Due Date" type="date" ref={dueDate} />
       </div>
+      {showError.flag && (
+        <ErrorModel
+          onClose={handleCloseError}
+          title="Error !"
+          message={showError.message}
+        />
+      )}
     </div>
   );
 };
